@@ -1,0 +1,28 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #121212;
+  color: #E0E0E0;
+  overflow-x: hidden;
+}
+
+.gradient-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-panel {
+  background: rgba(30, 30, 30, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Hide scrollbar for clean UI in modal */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
