@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Course } from '../types';
 
@@ -8,6 +8,18 @@ interface CourseCardProps {
 }
 
 export const CourseCard: React.FC<CourseCardProps> = ({ course, onRegister }) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleEnroll = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    // Play subtle animation for 600ms before triggering the modal
+    setTimeout(() => {
+        onRegister(course.title);
+        setIsAnimating(false);
+    }, 600);
+  };
+
   return (
     <div className="group relative bg-dark-card rounded-2xl border border-dark-border overflow-hidden flex flex-col h-full shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-gray-500/50">
       
@@ -44,11 +56,28 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course, onRegister }) =>
                 Details
             </Link>
             <button 
-                onClick={() => onRegister(course.title)}
-                className="py-3 px-4 bg-white text-black font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:scale-105 hover:shadow-blue-500/20 active:scale-95 group/btn text-sm"
+                onClick={handleEnroll}
+                disabled={isAnimating}
+                className={`py-3 px-4 font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-2 shadow-md text-sm
+                ${isAnimating 
+                    ? 'bg-green-600 text-white scale-95' 
+                    : 'bg-white text-black hover:scale-105 hover:shadow-blue-500/20 active:scale-95 group/btn'
+                }`}
             >
-                Enroll
-                <svg className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                {isAnimating ? (
+                    <>
+                        <span>Opening...</span>
+                         <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                         </svg>
+                    </>
+                ) : (
+                    <>
+                        Enroll
+                        <svg className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                    </>
+                )}
             </button>
         </div>
       </div>
