@@ -1,152 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { CourseCard } from './components/CourseCard';
+import { CourseDetail } from './components/CourseDetail';
+import { AboutProfile } from './components/AboutProfile';
+import { AboutDolasProfile } from './components/AboutDolasProfile';
 import { AIChat } from './components/AIChat';
 import { COURSES, PRICING, WHATSAPP_NUMBER, BANK_INFO, CONTACT_NUMBERS, TOOLS } from './constants';
-import { Course } from './types';
 
-function App() {
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState("");
-  const [viewingCourse, setViewingCourse] = useState<Course | null>(null);
-
-  // Form State
-  const [registrationStep, setRegistrationStep] = useState<'form' | 'payment'>('form');
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [contactStatus, setContactStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-
-  // Interactive Mouse State
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+function ScrollToTop() {
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth) * 20 - 10,
-        y: (e.clientY / window.innerHeight) * 20 - 10,
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
-  const initiateRegister = (courseName: string = "") => {
-    setSelectedCourse(courseName);
-    setRegistrationStep('form'); // Reset to form step
-    setShowPaymentModal(true);
-    setViewingCourse(null); // Close details modal if open
-  };
+  return null;
+}
 
-  const handleLearnMore = (course: Course) => {
-    setViewingCourse(course);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleRegistrationSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const formPayload = new FormData();
-    formPayload.append('name', formData.name);
-    formPayload.append('email', formData.email);
-    formPayload.append('phone', formData.phone);
-    formPayload.append('course', selectedCourse || 'General Enrollment');
-    formPayload.append('_subject', `New Registration: ${selectedCourse || 'General Enrollment'}`);
-
-    try {
-      await fetch("https://formspree.io/f/xldklvld", {
-        method: "POST",
-        body: formPayload,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      // Proceed to payment step regardless of success to allow user to continue flow
-      setRegistrationStep('payment');
-    } catch (error) {
-      console.error("Form submission error:", error);
-      setRegistrationStep('payment');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setContactStatus('submitting');
-    const form = e.currentTarget;
-    const data = new FormData(form);
-
-    try {
-      const response = await fetch("https://formspree.io/f/xldklvld", {
-        method: "POST",
-        body: data,
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      if (response.ok) {
-        setContactStatus('success');
-        form.reset();
-        setTimeout(() => setContactStatus('idle'), 5000);
-      } else {
-        setContactStatus('error');
-      }
-    } catch (error) {
-      setContactStatus('error');
-    }
-  };
-
-  const confirmPaymentAndWhatsApp = () => {
-    const message = `*REGISTRATION CONFIRMATION*\n\nName: ${formData.name}\nCourse: ${selectedCourse || 'General Enrollment'}\n\nI have sent my details via the website and viewed the payment info (Palmpay: ${BANK_INFO.accountNumber}).\nI am sending proof of payment now.`;
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
-    
-    window.open(whatsappUrl, '_blank');
-    setShowPaymentModal(false);
-    setFormData({ name: '', email: '', phone: '' }); // Reset form
-  };
-
-  // Countdown Timer Logic
-  const calculateTimeLeft = () => {
-    // Hardcoded target date for demo purposes (e.g., 7 days from now)
-    // In a real app, this would be dynamic or fetched from a config
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 3); 
-    const difference = +targetDate - +new Date();
-    let timeLeft = {};
-
-    if (difference > 0) {
-      timeLeft = {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60)
-      };
-    }
-    return timeLeft;
-  };
-
-  const [timeLeft, setTimeLeft] = useState<any>(calculateTimeLeft());
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-    return () => clearTimeout(timer);
-  });
-
-  return (
-    <div className="bg-dark-bg min-h-screen font-sans selection:bg-maccus-blue selection:text-white text-gray-200 overflow-hidden">
-      <Navbar />
-
-      {/* Hero Section with Parallax */}
+function Home({ mousePos, initiateRegister, timeLeft }: any) {
+    return (
+        <>
+        {/* Hero Section with Parallax */}
       <header className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-[#121212] flex items-center justify-center min-h-[90vh]">
         {/* Animated Background Blobs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -171,7 +46,7 @@ function App() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
             </span>
             <span className="text-xs font-bold text-gray-300 tracking-wider uppercase">
-                New Batch Starts In: <span className="text-white ml-2 font-mono">{timeLeft.days || 0}d {timeLeft.hours || 0}h {timeLeft.minutes || 0}m</span>
+                Batch: Dec 15 - 23 <span className="mx-2 text-gray-600">|</span> Starts In: <span className="text-white ml-2 font-mono">{timeLeft.days || 0}d {timeLeft.hours || 0}h {timeLeft.minutes || 0}m</span>
             </span>
           </div>
           
@@ -234,20 +109,28 @@ function App() {
                     </p>
                     
                     <div className="grid gap-6">
-                         <div className="bg-dark-card p-6 rounded-xl border border-dark-border hover:border-dolas-red transition-all duration-300 hover:transform hover:translate-x-2">
+                         <div className="bg-dark-card p-6 rounded-xl border border-dark-border hover:border-dolas-red transition-all duration-300 hover:transform hover:translate-x-2 relative group">
                             <h3 className="text-xl font-bold text-dolas-red mb-2">Dolas Communication</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">
+                            <p className="text-gray-400 text-sm leading-relaxed mb-4">
                                 Dolas Communication is a certified multimedia and creative tech brand dedicated to transforming imagination into world-class digital experiences.
                                 We combine creativity, technology, and storytelling to deliver highly professional services across media, entertainment, branding, and digital development.
                             </p>
+                            <Link to="/about/dolas" className="inline-flex items-center text-xs font-bold text-dolas-red hover:text-white uppercase tracking-wider gap-2">
+                                Meet The CEO
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                            </Link>
                         </div>
 
-                         <div className="bg-dark-card p-6 rounded-xl border border-dark-border hover:border-maccus-blue transition-all duration-300 hover:transform hover:translate-x-2">
+                         <div className="bg-dark-card p-6 rounded-xl border border-dark-border hover:border-maccus-blue transition-all duration-300 hover:transform hover:translate-x-2 relative group">
                             <h3 className="text-xl font-bold text-maccus-blue mb-2">Maccus Technology</h3>
-                            <p className="text-gray-400 text-sm leading-relaxed">
+                            <p className="text-gray-400 text-sm leading-relaxed mb-4">
                                 MACCUS TECHNOLOGY is a creative tech brand offering modern solutions in graphics design, motion design, data management, and general tech services. 
                                 We help individuals and businesses turn ideas into quality visuals, organized data, and digital success.
                             </p>
+                            <Link to="/about/maccus" className="inline-flex items-center text-xs font-bold text-maccus-blue hover:text-white uppercase tracking-wider gap-2">
+                                Meet The CEO
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -290,7 +173,7 @@ function App() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {COURSES.map(course => (
-              <CourseCard key={course.id} course={course} onRegister={initiateRegister} onLearnMore={handleLearnMore} />
+              <CourseCard key={course.id} course={course} onRegister={initiateRegister} />
             ))}
           </div>
         </div>
@@ -367,7 +250,45 @@ function App() {
           </div>
           
           <div className="bg-dark-card p-8 rounded-2xl border border-gray-700 shadow-xl">
-            <form onSubmit={handleContactSubmit} className="space-y-6">
+             <ContactForm />
+          </div>
+        </div>
+      </section>
+      </>
+    );
+}
+
+function ContactForm() {
+    const [contactStatus, setContactStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+    const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setContactStatus('submitting');
+        const form = e.currentTarget;
+        const data = new FormData(form);
+    
+        try {
+          const response = await fetch("https://formspree.io/f/xldklvld", {
+            method: "POST",
+            body: data,
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          if (response.ok) {
+            setContactStatus('success');
+            form.reset();
+            setTimeout(() => setContactStatus('idle'), 5000);
+          } else {
+            setContactStatus('error');
+          }
+        } catch (error) {
+          setContactStatus('error');
+        }
+      };
+
+    return (
+        <form onSubmit={handleContactSubmit} className="space-y-6">
               <input type="hidden" name="_subject" value="New Website Inquiry" />
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -397,9 +318,124 @@ function App() {
                 <p className="text-red-500 text-center text-sm font-medium mt-2">Something went wrong. Please try again.</p>
               )}
             </form>
-          </div>
-        </div>
-      </section>
+    )
+}
+
+function App() {
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState("");
+
+  // Form State
+  const [registrationStep, setRegistrationStep] = useState<'form' | 'payment'>('form');
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Interactive Mouse State
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth) * 20 - 10,
+        y: (e.clientY / window.innerHeight) * 20 - 10,
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  const initiateRegister = (courseName: string = "") => {
+    setSelectedCourse(courseName);
+    setRegistrationStep('form'); // Reset to form step
+    setShowPaymentModal(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleRegistrationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const formPayload = new FormData();
+    formPayload.append('name', formData.name);
+    formPayload.append('email', formData.email);
+    formPayload.append('phone', formData.phone);
+    formPayload.append('course', selectedCourse || 'General Enrollment');
+    formPayload.append('_subject', `New Registration: ${selectedCourse || 'General Enrollment'}`);
+
+    try {
+      await fetch("https://formspree.io/f/xldklvld", {
+        method: "POST",
+        body: formPayload,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      // Proceed to payment step regardless of success to allow user to continue flow
+      setRegistrationStep('payment');
+    } catch (error) {
+      console.error("Form submission error:", error);
+      setRegistrationStep('payment');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const confirmPaymentAndWhatsApp = () => {
+    const message = `*REGISTRATION CONFIRMATION*\n\nName: ${formData.name}\nCourse: ${selectedCourse || 'General Enrollment'}\n\nI have sent my details via the website and viewed the payment info (Palmpay: ${BANK_INFO.accountNumber}).\nI am sending proof of payment now.`;
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+    setShowPaymentModal(false);
+    setFormData({ name: '', email: '', phone: '' }); // Reset form
+  };
+
+  // Countdown Timer Logic
+  const calculateTimeLeft = () => {
+    const currentYear = new Date().getFullYear();
+    // Set target date to Dec 15 of current year
+    const targetDate = new Date(`${currentYear}-12-15T00:00:00`); 
+    
+    const difference = +targetDate - +new Date();
+    let timeLeft = {};
+
+    if (difference > 0) {
+      timeLeft = {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60)
+      };
+    }
+    return timeLeft;
+  };
+
+  const [timeLeft, setTimeLeft] = useState<any>(calculateTimeLeft());
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+    return () => clearTimeout(timer);
+  });
+
+  return (
+    <div className="bg-dark-bg min-h-screen font-sans selection:bg-maccus-blue selection:text-white text-gray-200 overflow-hidden">
+      <ScrollToTop />
+      <Navbar />
+      
+      <Routes>
+          <Route path="/" element={<Home mousePos={mousePos} initiateRegister={initiateRegister} timeLeft={timeLeft} />} />
+          <Route path="/courses/:courseId" element={<CourseDetail onRegister={initiateRegister} />} />
+          <Route path="/about/maccus" element={<AboutProfile />} />
+          <Route path="/about/dolas" element={<AboutDolasProfile />} />
+      </Routes>
 
       {/* Footer */}
       <footer id="contact" className="bg-dark-bg pt-16 pb-8 border-t border-dark-border">
@@ -437,86 +473,6 @@ function App() {
       </footer>
 
       <AIChat />
-
-      {/* Course Details Modal */}
-      {viewingCourse && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-dark-surface w-full max-w-2xl rounded-2xl border border-gray-700 shadow-2xl animate-fade-in-up max-h-[90vh] overflow-y-auto no-scrollbar">
-                <div className="relative h-32 bg-gradient-to-r from-gray-800 to-gray-900 overflow-hidden">
-                    <div className={`absolute inset-0 bg-gradient-to-r ${viewingCourse.color.replace('bg-', 'from-')} to-transparent opacity-20`}></div>
-                    <button 
-                        onClick={() => setViewingCourse(null)}
-                        className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 rounded-full text-white transition"
-                    >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                    <div className="absolute bottom-6 left-8 flex items-center gap-4">
-                        <div className={`w-12 h-12 bg-white rounded-xl flex items-center justify-center text-black shadow-lg`}>
-                            {viewingCourse.icon}
-                        </div>
-                        <h2 className="text-3xl font-bold text-white">{viewingCourse.title}</h2>
-                    </div>
-                </div>
-
-                <div className="p-8 space-y-8">
-                    <div>
-                        <h3 className="text-lg font-bold text-white mb-2">Course Overview</h3>
-                        <p className="text-gray-400 leading-relaxed">{viewingCourse.description}</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-8">
-                        <div>
-                             <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Prerequisites</h3>
-                             <ul className="space-y-2">
-                                {viewingCourse.prerequisites.map((req, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-gray-300 text-sm">
-                                        <svg className="w-4 h-4 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        {req}
-                                    </li>
-                                ))}
-                             </ul>
-                        </div>
-                        <div>
-                             <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Course Details</h3>
-                             <div className="space-y-3">
-                                <div className="flex items-center justify-between p-3 bg-dark-card rounded-lg border border-gray-700">
-                                    <span className="text-gray-400 text-sm">Duration</span>
-                                    <span className="text-white font-medium">{viewingCourse.duration}</span>
-                                </div>
-                                <div className="flex items-center justify-between p-3 bg-dark-card rounded-lg border border-gray-700">
-                                    <span className="text-gray-400 text-sm">Format</span>
-                                    <span className="text-white font-medium">Online (Zoom)</span>
-                                </div>
-                             </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-dark-card p-6 rounded-xl border border-gray-700">
-                        <h3 className="text-lg font-bold text-white mb-4">Meet Your Instructor</h3>
-                        <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-700 to-gray-600 flex items-center justify-center text-xl font-bold text-white">
-                                {viewingCourse.instructor.name.charAt(0)}
-                            </div>
-                            <div>
-                                <h4 className="text-white font-bold">{viewingCourse.instructor.name}</h4>
-                                <p className="text-blue-400 text-sm mb-2">{viewingCourse.instructor.role}</p>
-                                <p className="text-gray-400 text-sm">{viewingCourse.instructor.bio}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="pt-4 border-t border-gray-700">
-                        <button 
-                            onClick={() => initiateRegister(viewingCourse.title)}
-                            className="w-full py-4 bg-white text-black font-bold rounded-lg hover:bg-gray-100 transition shadow-lg"
-                        >
-                            Enroll in {viewingCourse.title}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-      )}
 
       {/* Payment / Registration Modal */}
       {showPaymentModal && (

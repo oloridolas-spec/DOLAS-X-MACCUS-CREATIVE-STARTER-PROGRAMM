@@ -13,7 +13,7 @@ export const COURSES: Course[] = [
       </svg>
     ),
     color: 'bg-dolas-red',
-    duration: '1 Week Intensive',
+    duration: 'Dec 15 - 23',
     prerequisites: [
       'Laptop with Dedicated GPU (Recommended)',
       'Basic Computer Literacy',
@@ -36,7 +36,7 @@ export const COURSES: Course[] = [
       </svg>
     ),
     color: 'bg-maccus-blue',
-    duration: '1 Week Intensive',
+    duration: 'Dec 15 - 23',
     prerequisites: [
       'No prior design experience required',
       'Laptop with 8GB RAM minimum'
@@ -58,7 +58,7 @@ export const COURSES: Course[] = [
       </svg>
     ),
     color: 'bg-maccus-green',
-    duration: '1 Week Intensive',
+    duration: 'Dec 15 - 23',
     prerequisites: [
       'Basic Graphics Design knowledge',
       'Laptop capable of video rendering'

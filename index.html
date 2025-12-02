@@ -28,17 +28,23 @@
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
+              mono: ['monospace'], // Added for brutalist aesthetics
             },
             animation: {
                 'scroll': 'scroll 20s linear infinite',
                 'fade-in-up': 'fadeInUp 0.5s ease-out',
                 'fade-in': 'fadeIn 0.3s ease-out',
                 'blob': 'blob 7s infinite',
+                'marquee': 'marquee 25s linear infinite',
             },
             keyframes: {
                 scroll: {
                     '0%': { transform: 'translateX(0)' },
                     '100%': { transform: 'translateX(-50%)' },
+                },
+                marquee: {
+                    '0%': { transform: 'translateX(0)' },
+                    '100%': { transform: 'translateX(-100%)' },
                 },
                 fadeInUp: {
                     '0%': { opacity: '0', transform: 'translateY(20px)' },
@@ -64,8 +70,11 @@
 {
   "imports": {
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.22.3?external=react,react-dom",
+    "@remix-run/router": "https://esm.sh/@remix-run/router@1.15.3",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
   }
 }
